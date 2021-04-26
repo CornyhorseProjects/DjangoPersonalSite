@@ -1,0 +1,31 @@
+name: django_personal_project
+services:
+- name: django_personal_project
+  github:
+    repo: CornyhorseProjects/DjangoPersonalSite
+    branch: static
+    deploy_on_push: true
+  run_command: gunicorn --worker-tmp-dir /dev/shm config.wsgi
+  envs:
+  - key: DJANGO_ALLOWED_HOSTS
+    value: "${APP_DOMAIN}"
+    scope: RUN_TIME
+jobs:
+  - name: collectstatic
+    kind: PRE_DEPLOY
+    github:
+      repo: CornyhorseProjects/DjangoPersonalSite
+      branch: static
+      deploy_on_push: true
+    run_command: python manage.py collectstatic
+static_sites:
+- name: static
+  github:
+    repo: CornyhorseProjects/DjangoPersonalSite
+    branch: static
+    deploy_on_push: true
+  # This happens as part of the Python/DJango buildpack:
+  # build_command: python manage.py collectstatic --noinput
+  output_dir: staticfiles
+  routes:
+  - path: /static
